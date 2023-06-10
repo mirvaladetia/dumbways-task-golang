@@ -1,0 +1,118 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/public/css/contact.css" />
+    <link rel="stylesheet" href="/public/css/style.css" />
+    <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+    crossorigin="anonymous"
+  />
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+    <title>Contact Me</title>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg text-center">
+      <div class="container">
+        <a class="navbar-brand" href="#">
+          <img src="/public/image/gensin.png" alt="" width="50" height="30" class="rounded-3" />
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarTogglerDemo02"
+          aria-control="navbarTogglerDemo02"
+          aria-expanded="false"
+          aria-label="Toggle Navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item ms-md-4">
+              <a class="nav-link text-black" aria-current="page" href="index.html"
+                >Home</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link text-black"
+                aria-current="page"
+                href="blog.html"
+                >Add Project</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link text-black"
+                aria-current="page"
+                href="testimonials.html"
+                >Testimonials</a
+              >
+            </li>
+          </ul>
+          <a href="contact.html" class="btn bg-black text-white px-3 me-4"
+            >Contact Me</a
+          >
+        </div>
+      </div>
+    </nav>
+    <h2 class="text-navy fw-bold fs-5 mb-3 mt-5">GET IN TOUCH</h2>
+    <form>
+      <div class="mb-3">
+        <label for="input-name" class="form-label text-navy fw-bold fs-5">Nama</label>
+        <input id="input-name" type="text" class="form-control" required />
+      </div>
+
+      <div class="mb-3">
+        <label for="input-email" class="form-label text-navy fw-bold fs-5">Email</label>
+        <input id="input-email" type="email" class="form-control" required />
+      </div>
+
+      <div class="mb-3">
+        <label for="input-phone" class="form-label text-navy fw-bold fs-5">Nomor Telepon</label>
+        <input id="input-phone" type="number" class="form-control" required />
+      </div>
+
+      <div class="mb-3">
+        <label for="input-subject" class="mb-2">Subject</label>
+        <select id="input-subject">
+          <option value="" hidden>Select</option>
+          <option>Frontend</option>
+          <option>Backend</option>
+          <option>Fullstack</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="input-message" class="form-label text-navy fw-bold fs-5">Isi Pesan</label>
+        <textarea id="input-message" 
+        class="form-control-lg"
+        placeholder="Silahkan isi pesan disini"
+        rows="5" cols="10"></textarea>
+      </div>
+
+      <div class="d-flex justify-content-end">
+        <button class="rounded-3" type="button" onclick="ngumpulindata()">Submit</button>
+      </div>
+    </form>
+    <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"
+  ></script>
+    <script src="/public/js/contact.js"></script>
+    <!-- <script src="/public/js/index.js"></script> -->
+  </body>
+</html>

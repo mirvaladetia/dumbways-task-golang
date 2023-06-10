@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/public/css/style.css" />
+    <link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+			integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+			crossorigin="anonymous"
+		/>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <title>Personal Blog</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg text-center">
+			<div class="container">
+				<a class="navbar-brand" href="#">
+					<img src="/public/image/gensin.png" alt="" width="50" height="30" class="rounded-3" />
+				</a>
+				<button
+					class="navbar-toggler"
+					type="button"
+					data-bs-toggle="collapse"
+					data-bs-target="#navbarTogglerDemo02"
+					aria-control="navbarTogglerDemo02"
+					aria-expanded="false"
+					aria-label="Toggle Navigation"
+				>
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+						<li class="nav-item ms-md-4">
+							<a class="nav-link text-black active" aria-current="page" href="index.html"
+								>Home</a
+							>
+						</li>
+						<li class="nav-item">
+							<a
+								class="nav-link text-black"
+								aria-current="page"
+								href="blog.html"
+								>Add Project</a
+							>
+						</li>
+						<li class="nav-item">
+							<a
+								class="nav-link text-black"
+								aria-current="page"
+								href="testimonials.html"
+								>Testimonials</a
+							>
+						</li>
+					</ul>
+					<a href="contact.html" class="btn bg-black text-white px-3 me-4"
+						>Contact Me</a
+					>
+				</div>
+			</div>
+		</nav>
+
+    <div class="card-container">
+      <section>
+        <div class="left">
+          
+            <h2>Genshin Waifu Corner</h2>
+            <p>
+              Selamat datang di blog iseng-iseng saya. Blog ini berisi tentang pendapat saya tentang char
+              wanita yang ada di game Genshin Impact selama saya bermain dan bersifat subjektif. Harap dimaklumi!!!
+            </p>
+            <div class="contact-button-container">
+              <a>contact</a>
+              <h4>download CV</h4>
+              <i class="fa-solid fa-download"></i>
+            </div>
+            <div class="social-media">
+              <i class="fa-brands fa-linkedin"></i>
+              <i class="fa-brands fa-instagram"></i>
+              <i class="fa-brands fa-facebook"></i>
+              <i class="fa-brands fa-twitter"></i>
+            </div>
+        </div>
+        <div class="right">
+            <div class="img-container">
+                <img src="/public/image/ayaka.jpeg" alt="" />
+                <div>
+                    <h2>Mirval Adetia</h2>
+                    <p>Tukang Ngegame</p>
+                </div>
+        </div>
+        </div>
+      </section>
+    </div>
+    <div class="container-fluid bg-white pb-5">
+			<h1 class="text-center fw-bolder pt-1">MY PROJECT</h1>
+      <div class="row row-cols-2 row-cols-md-3 g-2 g-md-4 mt-4 m-md-5"
+      id="myproject"
+    >
+      <div class="col">
+        <div class="card card-project shadow rounded-2">
+          <img
+            src="/public/image/ayaka.jpeg"
+            class="card-img-top p-2 rounded-4" style="object-fit: cover; height: 500px;"
+            alt="..."
+          />
+          <div class="card-body">
+            <h5 class="card-title fw-bold">
+              <a
+                href="blog_list.html"
+                class="text-black text-decoration-none"
+                >Putri Es Inazuma, Kamisato Ayaka</a
+              >
+            </h5>
+            <p class="card-text">20 Mei 2023 01.00 WIB | Mirval Adetia</p>
+            <p class="card-text">
+              Waifu cryo dari Inazuma ini merupakan salah satu karkater yang disukai oleh banyak player Genshin.
+              Selain menjadi DPS yang kuat, dia juga memiliki kepribadian yang menarik.
+            </p>
+            <div class="icon-linked-app pt-3">
+                <img src="/public/image/sword_1.png" style="width: 20px; display: flex;">
+            </div>
+            <div class="container-button d-flex flex-row mt-5">
+              <button class="btn me-2" type="button">edit</button>
+              <button class="btn md-2" type="button">delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card card-project shadow rounded-2">
+          <img
+            src="/public/image/keqing.jpeg"
+            class="card-img-top p-2 rounded-4" style="object-fit: cover; height: 500px;"
+            alt="..."
+          />
+          <div class="card-body">
+            <h5 class="card-title fw-bold">
+              <a
+                href="blog_list.html"
+                class="text-black text-decoration-none"
+                >Pejabat Tsundere Liyue, Keqing</a
+              >
+            </h5>
+            <p class="card-text">20 Mei 2023 01.00 WIB | Mirval Adetia</p>
+            <p class="card-text">
+              Waifu electro dari Liyue ini merupakan salah satu karkater yang disukai oleh banyak player Genshin. Memiliki kepribadian yang menarik.
+              Cerdas dan punya pendirian yang teguh dan tangguh.
+            </p>
+            <div class="icon-linked-app pt-3">
+                <img src="/public/image/sword_1.png" style="width: 20px; display: flex;">
+            </div>
+            <div class="container-button d-flex flex-row mt-5">
+              <button class="btn me-2" type="button">edit</button>
+              <button class="btn md-2" type="button">delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+    <script
+			src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+			integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+			crossorigin="anonymous"
+		></script>
+    <script src="/public/js/blog.js"></script>
+  </body>
+</html>
