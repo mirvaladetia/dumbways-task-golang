@@ -92,8 +92,9 @@
 }
 .blog-list {
     margin: auto;
+    margin-top: 10px;
     display: grid;
-    grid-template-columns: 50% 50%;
+    grid-template-columns: 95%;
     /* flex-direction: column; */
     justify-content: center;
 }
@@ -128,9 +129,25 @@
 .blog-list .blog-list-container .button-group {
     text-align: right;
 }
+.button-upload {
+    margin-top: 50px;
+    margin-bottom: 50px;
+    margin-left: 15px;
+    width: 10%;
+    text-decoration: none;
+    justify-content: end;
+    padding: 5px 20px;
+    font-size: 15px;
+    background: #001a33;
+    color:#f4f3f3;
+    border:none solid #aed6f1;
+    border-radius: 10px;
+    cursor: pointer;
+}
 .blog-list .blog-list-container .button-group .button-unggah {
     padding: 5px 20px;
     font-size: 10px;
+    text-decoration: none !important;
     background: #001a33;
     color:#f4f3f3;
     border:none solid #aed6f1;
@@ -190,6 +207,7 @@
     text-align: left;
     margin-bottom: 20px;
     color: #001a33;
+    /* align-items: end !important; */
 }
 .blog-detail .blog-detail-container p {
     text-align: justify;

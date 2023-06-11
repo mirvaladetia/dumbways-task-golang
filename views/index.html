@@ -23,7 +23,7 @@
   <body>
     <nav class="navbar navbar-expand-lg text-center">
 			<div class="container">
-				<a class="navbar-brand" href="#">
+				<a class="navbar-brand" href="/">
 					<img src="/public/image/gensin.png" alt="" width="50" height="30" class="rounded-3" />
 				</a>
 				<button
@@ -40,7 +40,7 @@
 				<div class="collapse navbar-collapse" id="navbarTogglerDemo02">
 					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 						<li class="nav-item ms-md-4">
-							<a class="nav-link text-black active" aria-current="page" href="index.html"
+							<a class="nav-link text-black active" aria-current="page" href="/"
 								>Home</a
 							>
 						</li>
@@ -48,7 +48,7 @@
 							<a
 								class="nav-link text-black"
 								aria-current="page"
-								href="blog.html"
+								href="blog"
 								>Add Project</a
 							>
 						</li>
@@ -56,12 +56,12 @@
 							<a
 								class="nav-link text-black"
 								aria-current="page"
-								href="testimonials.html"
+								href="testimonial"
 								>Testimonials</a
 							>
 						</li>
 					</ul>
-					<a href="contact.html" class="btn bg-black text-white px-3 me-4"
+					<a href="contact" class="btn bg-black text-white px-3 me-4"
 						>Contact Me</a
 					>
 				</div>
@@ -105,37 +105,58 @@
       <div class="row row-cols-2 row-cols-md-3 g-2 g-md-4 mt-4 m-md-5"
       id="myproject"
     >
+    {{range $index, $data := .Blogs}}
       <div class="col">
         <div class="card card-project shadow rounded-2">
           <img
-            src="/public/image/ayaka.jpeg"
+            src={{$data.Image}}
             class="card-img-top p-2 rounded-4" style="object-fit: cover; height: 500px;"
             alt="..."
           />
           <div class="card-body">
             <h5 class="card-title fw-bold">
               <a
-                href="blog_list.html"
+                href="blog_list/{{$index}}"
                 class="text-black text-decoration-none"
-                >Putri Es Inazuma, Kamisato Ayaka</a
+                >{{$data.Judul}}</a
               >
             </h5>
-            <p class="card-text">20 Mei 2023 01.00 WIB | Mirval Adetia</p>
-            <p class="card-text">
-              Waifu cryo dari Inazuma ini merupakan salah satu karkater yang disukai oleh banyak player Genshin.
-              Selain menjadi DPS yang kuat, dia juga memiliki kepribadian yang menarik.
-            </p>
             <div class="icon-linked-app pt-3">
+              {{if $data.Maindps}}
                 <img src="/public/image/sword_1.png" style="width: 20px; display: flex;">
+              {{end}}
             </div>
+            <div class="icon-linked-app pt-3">
+              {{if $data.Subdps}}
+              <img src="/public/image/sword.png" style="width: 20px; display: flex;">
+              {{end}}
+          </div>
+          <div class="icon-linked-app pt-3">
+            {{if $data.Shielder}}
+            <img src="/public/image/shield.png" style="width: 20px; display: flex;">
+            {{end}}
+          </div>
+          <div class="icon-linked-app pt-3">
+            {{if $data.Healer}}
+            <img src="/public/image/healing.png" style="width: 20px; display: flex;">
+            {{end}}
+          </div>
+          
+          <p class="card-text">{{$data.StartDate}} / {{$data.EndDate}}</p>
+          <p class="card-text">Durasi : {{$data.Durasi}} | Mirval Adetia</p>
+          <p class="card-text">{{$data.Konten}}</p>
+
             <div class="container-button d-flex flex-row mt-5">
-              <button class="btn me-2" type="button">edit</button>
-              <button class="btn md-2" type="button">delete</button>
+                <a class="btn me-2 edit" type="submit" href="/add-blog/{{$index}}">edit</a>
+                <form action="/delete-blog/{{$index}}" method="POST">
+                  <input class="btn md-2 edit" type="submit" value="delete"/>
+                </form>
             </div>
           </div>
         </div>
       </div>
-      <div class="col">
+      {{end}}
+      <!-- <div class="col">
         <div class="card card-project shadow rounded-2">
           <img
             src="/public/image/keqing.jpeg"
@@ -164,7 +185,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
       </div>
     </div>
     <script

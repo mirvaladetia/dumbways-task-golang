@@ -17,7 +17,7 @@ const promise = new Promise((resolve, reject) => {
   
   async function getAllTestimonials() {
     const response = await promise;
-    //   console.log(response);
+      // console.log(response);
   
     let testimonialHTML = "";
     response.forEach(function (item) {

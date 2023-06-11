@@ -151,9 +151,10 @@ section .left h2 {
   text-align: center;
   color: #001a33;
 }
-.container-button button {
-  width: 100% !important;
+.container-button .edit{
+  width: 50% !important;
   height: 30px;
+  margin: 15pxs;
   background-color: #001a33;
   color: white;
   line-height: 100%;

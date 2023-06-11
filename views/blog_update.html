@@ -19,7 +19,7 @@
         crossorigin="anonymous"
         referrerpolicy="no-referrer"
       />
-        <title>Blog Form</title>
+        <title>Upload</title>
     </head>
 <body>
   <nav class="navbar navbar-expand-lg text-center">
@@ -71,13 +71,13 @@
       <div class="blog d-flex justify-content-center align-items-center mt-5">
         <div class="blog-form">
             <div class="form-container">
-                <form action="/add-new-blog" method="POST">
-                    <h1 class="mb-3 text-center judul mt-3 text-navy fw-bold">
-                      Posting Waifu</h1>
+              <h1 class="mb-3 text-center judul mt-3 text-navy fw-bold">
+                Posting Waifu</h1>
+                <form action="/update-blog/{{.Index}}" method="POST">
                     <div>
                     <label for="input-judul-cerita"
-                    class="form-label text-navy fw-bold fs-5">Judul</label>
-                    <input type="text" id="input-judul-cerita" class="form-control mb-2" name="judul" required/>
+                          class="form-label text-navy fw-bold fs-5">Judul</label>
+                    <input type="text" id="input-judul-cerita" class="form-control mb-2" name="judul" value="{{.Blog.Judul}}" required/>
                     </div>
                     <div class="d-flex gap-0 column-gap-3">
                         <div class="start-date">
@@ -87,7 +87,7 @@
                             type="date"
                             id="input-start-date"
                             name="startDate"
-                          />
+                            value="{{.Blog.StartDate}}"/>
                         </div>
                         <div class="end-date">
                           <label for="input-end-date"
@@ -96,13 +96,13 @@
                             type="date"
                             id="input-end-date"
                             name="endDate"
-                          />
+                            value="{{.Blog.EndDate}}"/>
                         </div>
                       </div>
                     <div class="mb-4">
                     <label for="input-konten"
                     class="form-label text-navy fw-bold fs-5">Konten</label>
-                    <textarea id="input-konten" name="konten"></textarea>    
+                    <textarea id="input-konten" name="konten">{{.Blog.Konten}}</textarea>    
                     </div>
                     <div class="mb-3">
                         <label class="form-label text-navy fw-bold fs-5">Role</label>
@@ -112,13 +112,13 @@
                         <div class="role-container">
                             <div class="checkbox-role">
                                 <input name="maindps" value="/public/image/sword_1.png"
-                                class="form-check-input" type="checkbox" id="input-main-dps"/>
+                                class="form-check-input" type="checkbox" id="input-main-dps" {{if .Blog.Maindps}} checked {{end}}/>
                                 <label class="form-check-label" for="input-dps" id="dps">Main DPS</label>
                             </div>
                             <div class="checkbox-role">
                                 <label class="form-check-label" for="input-subdps" id="dps">Sub DPS</label>
                                 <input name="subdps" type="checkbox"
-                                class="form-check-input" id="input-subdps" value="/public/image/sword.png"/>    
+                                class="form-check-input" id="input-subdps" value="/public/image/sword.png" {{if .Blog.Subdps}} checked {{end}}/>    
                             </div>
                         </div>
                     </div>
@@ -127,13 +127,13 @@
                         <div class="role-container">
                             <div class="checkbox-role">
                                 <input name="healer" type="checkbox" 
-                                class="form-check-input" id="input-healer" value="/public/image/healing.png" />    
+                                class="form-check-input" id="input-healer" value="/public/image/healing.png" {{if .Blog.Healer}} checked {{end}}/>    
                                 <label class="form-check-label" for="input-healer">Healer</label>
                             </div>
                             <div class="checkbox-role">
                                 <label class="form-check-label" for="input-shielder">Shielder</label>
                                 <input name="shielder" type="checkbox"
-                                class="form-check-input" id="input-shielder" value="/public/image/shield.png"/>    
+                                class="form-check-input" id="input-shielder" value="/public/image/shield.png" {{if .Blog.Shielder}} checked {{end}} />    
                             </div>
                         </div>
                     </div>
@@ -144,27 +144,27 @@
                       <label for="inputImage" class="form-label text-navy fw-bold fs-5 mb-2"
                         >Unggah Foto</label
                       >
+                      <img style="display: flex; width: 170px; height: 260px;"
+                           src="{{.Blog.Image}}"/>
                       <input
                         type="file"
                         id="input-project-image"
                         class="form-control form-control-lg input-project-image-group"
-                        name="image"
                       />
                     </div>
                         <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary"
-                              onsubmit="addBlog(event)"
-                        >Submit</button>
+                        <button type="submit" class="btn btn-primary" onsubmit="addBlog(event)">Submit</button>
                         </div>
-                    </div>
-                </div>
+                  </form>
+              </div>
             </div>
-        <script
-			src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-			integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
-			crossorigin="anonymous"
-		></script>
-    <script src="public/js/blog.js"></script>
-    <script src="public/js/index.js"></script>
+         </div>
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"
+    ></script>
+<script src="public/js/blog.js"></script>
+<script src="public/js/index.js"></script>
 </body>
-    </html>
+</html>
