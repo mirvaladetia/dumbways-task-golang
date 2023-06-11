@@ -28,36 +28,36 @@ type Project struct {
 	Healer         bool
 }
 
-var dataBlog = []Project{
-	{
-		Judul:          "Kamisato Ayaka",
-		Image:          "/public/image/ayaka.jpeg",
-		StartDate:      time.Date(2023, 05, 9, 0, 0, 0, 0, time.Local),
-		EndDate:        time.Date(2023, 06, 10, 0, 0, 0, 0, time.Local),
-		FormattedStart: "2023-05-09",
-		FormattedEnd:   "2023-06-10",
-		Durasi:         "1 Bulan",
-		Konten:         "Putri Es Inazuma",
-		Maindps:        true,
-		Subdps:         false,
-		Shielder:       false,
-		Healer:         false,
-	},
-	{
-		Judul:          "Keqing",
-		Image:          "/public/image/keqing.jpeg",
-		StartDate:      time.Date(2023, 05, 9, 0, 0, 0, 0, time.Local),
-		EndDate:        time.Date(2023, 06, 10, 0, 0, 0, 0, time.Local),
-		FormattedStart: "2023-05-09",
-		FormattedEnd:   "2023-06-10",
-		Durasi:         "1 Bulan",
-		Konten:         "Liyue Qixing",
-		Maindps:        true,
-		Subdps:         false,
-		Shielder:       false,
-		Healer:         false,
-	},
-}
+// var dataBlog = []Project{
+// 	{
+// 		Judul:          "Kamisato Ayaka",
+// 		Image:          "/public/image/ayaka.jpeg",
+// 		StartDate:      time.Date(2023, 05, 9, 0, 0, 0, 0, time.Local),
+// 		EndDate:        time.Date(2023, 06, 10, 0, 0, 0, 0, time.Local),
+// 		FormattedStart: "2023-05-09",
+// 		FormattedEnd:   "2023-06-10",
+// 		Durasi:         "1 Bulan",
+// 		Konten:         "Putri Es Inazuma",
+// 		Maindps:        true,
+// 		Subdps:         false,
+// 		Shielder:       false,
+// 		Healer:         false,
+// 	},
+// 	{
+// 		Judul:          "Keqing",
+// 		Image:          "/public/image/keqing.jpeg",
+// 		StartDate:      time.Date(2023, 05, 9, 0, 0, 0, 0, time.Local),
+// 		EndDate:        time.Date(2023, 06, 10, 0, 0, 0, 0, time.Local),
+// 		FormattedStart: "2023-05-09",
+// 		FormattedEnd:   "2023-06-10",
+// 		Durasi:         "1 Bulan",
+// 		Konten:         "Liyue Qixing",
+// 		Maindps:        true,
+// 		Subdps:         false,
+// 		Shielder:       false,
+// 		Healer:         false,
+// 	},
+// }
 
 func main() {
 	connection.DatabaseConnect()
@@ -95,8 +95,8 @@ func home(c echo.Context) error {
 			return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
 		}
 
-		each.FormattedStart = each.StartDate.Format("2 January 2006")
-		each.FormattedEnd = each.EndDate.Format("2 January 2006")
+		each.FormattedStart = each.StartDate.Format("02 January 2006")
+		each.FormattedEnd = each.EndDate.Format("02 January 2006")
 
 		result = append(result, each)
 	}
@@ -141,9 +141,21 @@ func blogList(c echo.Context) error {
 	// 	"Content": `Waifu cryo dari Inazuma ini merupakan salah satu karkater yang disukai oleh banyak player Genshin.
 	// 				Selain menjadi DPS yang kuat, dia juga memiliki kepribadian yang menarik.`,
 	// }
+
 	blogDetail := Project{}
-	blogDetail = dataBlog[id]
-	blogDetail.Id = id
+
+	err := connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_blogs WHERE id=$1", id).Scan(&blogDetail.Judul, &blogDetail.StartDate, &blogDetail.EndDate,
+		&blogDetail.Konten, &blogDetail.Image, &blogDetail.Id, &blogDetail.Maindps, &blogDetail.Subdps,
+		&blogDetail.Shielder, &blogDetail.Healer, &blogDetail.Durasi)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	blogDetail.FormattedStart = blogDetail.StartDate.Format("2 January 2006")
+	blogDetail.FormattedEnd = blogDetail.EndDate.Format("2 January 2006")
+	// blogDetail = dataBlog[id]
+	// blogDetail.Id = id
 	// for i, data := range dataBlog {
 	// 	if id == i {
 	// 		blogDetail = Project{
@@ -163,9 +175,9 @@ func blogList(c echo.Context) error {
 	// data := map[string]interface{}{
 	// 	"Blog": blogDetail,
 	// }
-	var tmpl, err = template.ParseFiles("views/blog_list.html")
+	var tmpl, errTmpl = template.ParseFiles("views/blog_list.html")
 
-	if err != nil {
+	if errTmpl != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 
@@ -181,37 +193,89 @@ func testimonials(c echo.Context) error {
 
 	return tmpl.Execute(c.Response(), nil)
 }
+
 func addBlog(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
+
+	// data, _ := connection.Conn.Query(context.Background(), "SELECT * FROM tb_blogs")
+
+	// var result []Project
+	// for data.Next() {
+	// 	var each = Project{}
+
+	// 	err := data.Scan(&each.Judul, &each.StartDate, &each.EndDate, &each.Konten, &each.Image, &each.Id, &each.Maindps, &each.Subdps, &each.Shielder, &each.Healer, &each.Durasi)
+
+	// 	if err != nil {
+	// 		println(err.Error())
+	// 		return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
+	// 	}
+
+	// 	each.FormattedStart = each.StartDate.Format("02 January 2006")
+	// 	each.FormattedEnd = each.EndDate.Format("02 January 2006")
+
+	// 	result = append(result, each)
+	// }
+
+	// blogDetail := Project{}
+
+	// for _, data := range result {
+	// 	if id == data.Id {
+	// 		blogDetail = Project{
+	// 			Id:        data.Id,
+	// 			Judul:     data.Judul,
+	// 			Image:     data.Image,
+	// 			StartDate: data.StartDate,
+	// 			EndDate:   data.EndDate,
+	// 			Durasi:    data.Durasi,
+	// 			Konten:    data.Konten,
+	// 			Maindps:   data.Maindps,
+	// 			Subdps:    data.Subdps,
+	// 			Shielder:  data.Shielder,
+	// 			Healer:    data.Healer,
+	// 		}
+	// 	}
+	// }
 	blogDetail := Project{}
-	for i, data := range dataBlog {
-		if id == i {
-			blogDetail = Project{
-				Id:        id,
-				Judul:     data.Judul,
-				Image:     data.Image,
-				StartDate: data.StartDate,
-				EndDate:   data.EndDate,
-				Durasi:    data.Durasi,
-				Konten:    data.Konten,
-				Maindps:   data.Maindps,
-				Subdps:    data.Subdps,
-				Shielder:  data.Shielder,
-				Healer:    data.Healer,
-			}
-		}
-	}
-	data := map[string]interface{}{
-		"Blog":  blogDetail,
-		"Index": id,
-	}
-	var tmpl, err = template.ParseFiles("views/blog_update.html")
+	err := connection.Conn.QueryRow(context.Background(), "SELECT judul, start_date, end_date, konten, image, id, main_dps, sub_dps, shielder, healer, durasi FROM tb_blogs WHERE id=$1", id).
+		Scan(&blogDetail.Judul, &blogDetail.StartDate, &blogDetail.EndDate,
+			&blogDetail.Konten, &blogDetail.Image, &blogDetail.Id, &blogDetail.Maindps, &blogDetail.Subdps,
+			&blogDetail.Shielder, &blogDetail.Healer, &blogDetail.Durasi)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 
-	return tmpl.Execute(c.Response(), data)
+	blogDetail.FormattedStart = blogDetail.StartDate.Format("2 January 2006")
+	blogDetail.FormattedEnd = blogDetail.EndDate.Format("2 January 2006")
+
+	// blogDetail := Project{}
+	// for i, data := range dataBlog {
+	// 	if id == i {
+	// 		blogDetail = Project{
+	// 			Id:        id,
+	// Judul:     data.Judul,
+	// Image:     data.Image,
+	// StartDate: data.StartDate,
+	// EndDate:   data.EndDate,
+	// Durasi:    data.Durasi,
+	// Konten:    data.Konten,
+	// Maindps:   data.Maindps,
+	// Subdps:    data.Subdps,
+	// Shielder:  data.Shielder,
+	// Healer:    data.Healer,
+	// 		}
+	// 	}
+	// }
+	dt := map[string]interface{}{
+		"Blog": blogDetail,
+	}
+	var tmpl, tmplErr = template.ParseFiles("views/blog_update.html")
+
+	if tmplErr != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": tmplErr.Error()})
+	}
+
+	return tmpl.Execute(c.Response(), dt)
 }
 
 func addNewBlog(c echo.Context) error {
@@ -237,26 +301,35 @@ func addNewBlog(c echo.Context) error {
 	println("Role : " + shielder)
 	println("Role : " + healer)
 
+	parsedStartDate, _ := time.Parse("2006-01-02", startDate)
+	parsedEndDate, _ := time.Parse("2006-01-02", endDate)
+	_, err := connection.Conn.Exec(context.Background(), "INSERT INTO tb_blogs (judul, start_date, end_date, konten, image, main_dps, sub_dps, shielder, healer, durasi) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
+		judul, parsedStartDate.Local(), parsedEndDate.Local(), konten, "/public/image/"+image, maindps != "", subdps != "", shielder != "", healer != "", durasi)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
 	// newData := Project{
 	// 	judul: judul,
 	// 	StartDate: startDate,
 	// 	EndDate: endDate,
 	// 	konten: konten,
 	// 	maindps: maindps,
-	dataNewBlog := Project{
-		Judul:          judul,
-		Image:          "/public/image/" + image,
-		FormattedStart: startDate,
-		FormattedEnd:   endDate,
-		Durasi:         durasi,
-		Konten:         konten,
-		Maindps:        (maindps == "maindps"),
-		Subdps:         (subdps == "subdps"),
-		Shielder:       (shielder == "subdps"),
-		Healer:         (healer == "healer"),
-	}
-	println(image)
-	dataBlog = append(dataBlog, dataNewBlog)
+	// dataNewBlog := Project{
+	// 	Judul:          judul,
+	// 	Image:          "/public/image/" + image,
+	// 	FormattedStart: startDate,
+	// 	FormattedEnd:   endDate,
+	// 	Durasi:         durasi,
+	// 	Konten:         konten,
+	// 	Maindps:        (maindps == "maindps"),
+	// 	Subdps:         (subdps == "subdps"),
+	// 	Shielder:       (shielder == "subdps"),
+	// 	Healer:         (healer == "healer"),
+	// }
+	// println(image)
+	// dataBlog = append(dataBlog, dataNewBlog)
 
 	return c.Redirect(http.StatusMovedPermanently, "/")
 }
@@ -266,7 +339,13 @@ func deleteBlog(c echo.Context) error {
 
 	println("Index : ", id)
 
-	dataBlog = append(dataBlog[:id], dataBlog[id+1:]...)
+	_, err := connection.Conn.Exec(context.Background(), "DELETE FROM tb_blogs WHERE id=$1", id)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	// dataBlog = append(dataBlog[:id], dataBlog[id+1:]...)
 
 	return c.Redirect(http.StatusMovedPermanently, "/")
 }
@@ -276,6 +355,7 @@ func updateBlog(c echo.Context) error {
 	println("Index :", id)
 
 	judul := c.FormValue("judul")
+	image := c.FormValue("image")
 	startDate := c.FormValue("startDate")
 	endDate := c.FormValue("endDate")
 	durasi := sumDurasi(startDate, endDate)
@@ -294,18 +374,27 @@ func updateBlog(c echo.Context) error {
 	println("Role : " + shielder)
 	println("Role : " + healer)
 
-	dataUpdateBlog := Project{
-		Judul:          judul,
-		FormattedStart: startDate,
-		FormattedEnd:   endDate,
-		Durasi:         durasi,
-		Konten:         konten,
-		Maindps:        (maindps == "maindps"),
-		Subdps:         (subdps == "subdps"),
-		Shielder:       (shielder == "subdps"),
-		Healer:         (healer == "healer"),
+	parsedStartDate, _ := time.Parse("2006-01-02", startDate)
+	parsedEndDate, _ := time.Parse("2006-01-02", endDate)
+	_, err := connection.Conn.Exec(context.Background(), "UPDATE tb_blogs SET judul=$1, start_date=$2, end_date=$3, durasi=$4, konten=$5, main_dps=$6, sub_dps=$7, shielder=$8, healer=$9, image=$10",
+		judul, parsedStartDate.Local(), parsedEndDate.Local(), konten, maindps != "", subdps != "", durasi, shielder != "", healer != "", "/public/image/"+image)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
-	dataBlog[id] = dataUpdateBlog
+
+	// dataUpdateBlog := Project{
+	// 	Judul:          judul,
+	// 	FormattedStart: startDate,
+	// 	FormattedEnd:   endDate,
+	// 	Durasi:         durasi,
+	// 	Konten:         konten,
+	// 	Maindps:        (maindps == "maindps"),
+	// 	Subdps:         (subdps == "subdps"),
+	// 	Shielder:       (shielder == "subdps"),
+	// 	Healer:         (healer == "healer"),
+	// }
+	// dataBlog[id] = dataUpdateBlog
 	return c.Redirect(http.StatusMovedPermanently, "/")
 }
 

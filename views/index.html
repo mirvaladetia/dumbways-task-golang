@@ -116,7 +116,7 @@
           <div class="card-body">
             <h5 class="card-title fw-bold">
               <a
-                href="blog_list/{{$index}}"
+                href="blog_list/{{$data.Id}}"
                 class="text-black text-decoration-none"
                 >{{$data.Judul}}</a
               >
@@ -147,8 +147,8 @@
           <p class="card-text">{{$data.Konten}}</p>
 
             <div class="container-button d-flex flex-row mt-5">
-                <a class="btn me-2 edit" type="submit" href="/add-blog/{{$index}}">edit</a>
-                <form action="/delete-blog/{{$index}}" method="POST">
+                <a class="btn me-2 edit" href="add-blog/{{$data.Id}}">edit</a>
+                <form action="/delete-blog/{{$data.Id}}" method="POST">
                   <input class="btn md-2 edit" type="submit" value="delete"/>
                 </form>
             </div>
