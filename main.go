@@ -1,6 +1,8 @@
 package main
 
 import (
+	"belajargolang/connection"
+	"context"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -11,47 +13,55 @@ import (
 )
 
 type Project struct {
-	Id        int
-	Image     string
-	Judul     string
-	StartDate string
-	EndDate   string
-	Durasi    string
-	Konten    string
-	Maindps   bool
-	Subdps    bool
-	Shielder  bool
-	Healer    bool
+	Id             int
+	Image          string
+	Judul          string
+	StartDate      time.Time
+	EndDate        time.Time
+	FormattedStart string
+	FormattedEnd   string
+	Durasi         string
+	Konten         string
+	Maindps        bool
+	Subdps         bool
+	Shielder       bool
+	Healer         bool
 }
 
 var dataBlog = []Project{
 	{
-		Judul:     "Kamisato Ayaka",
-		Image:     "/public/image/ayaka.jpeg",
-		StartDate: "2023-05-09",
-		EndDate:   "2023-06-10",
-		Durasi:    "1 Bulan",
-		Konten:    "Putri Es Inazuma",
-		Maindps:   true,
-		Subdps:    false,
-		Shielder:  false,
-		Healer:    false,
+		Judul:          "Kamisato Ayaka",
+		Image:          "/public/image/ayaka.jpeg",
+		StartDate:      time.Date(2023, 05, 9, 0, 0, 0, 0, time.Local),
+		EndDate:        time.Date(2023, 06, 10, 0, 0, 0, 0, time.Local),
+		FormattedStart: "2023-05-09",
+		FormattedEnd:   "2023-06-10",
+		Durasi:         "1 Bulan",
+		Konten:         "Putri Es Inazuma",
+		Maindps:        true,
+		Subdps:         false,
+		Shielder:       false,
+		Healer:         false,
 	},
 	{
-		Judul:     "Keqing",
-		Image:     "/public/image/keqing.jpeg",
-		StartDate: "09-05-2023",
-		EndDate:   "10-06-2023",
-		Durasi:    "1 Bulan",
-		Konten:    "Liyue Qixing",
-		Maindps:   true,
-		Subdps:    false,
-		Shielder:  false,
-		Healer:    false,
+		Judul:          "Keqing",
+		Image:          "/public/image/keqing.jpeg",
+		StartDate:      time.Date(2023, 05, 9, 0, 0, 0, 0, time.Local),
+		EndDate:        time.Date(2023, 06, 10, 0, 0, 0, 0, time.Local),
+		FormattedStart: "2023-05-09",
+		FormattedEnd:   "2023-06-10",
+		Durasi:         "1 Bulan",
+		Konten:         "Liyue Qixing",
+		Maindps:        true,
+		Subdps:         false,
+		Shielder:       false,
+		Healer:         false,
 	},
 }
 
 func main() {
+	connection.DatabaseConnect()
+
 	e := echo.New()
 	// e.GET("/", func(c echo.Context) error {
 	// 	return c.String(http.StatusOK, "Hello World")
@@ -73,13 +83,31 @@ func main() {
 }
 
 func home(c echo.Context) error {
+	data, _ := connection.Conn.Query(context.Background(), "SELECT * FROM tb_blogs")
+
+	var result []Project
+	for data.Next() {
+		var each = Project{}
+
+		err := data.Scan(&each.Judul, &each.StartDate, &each.EndDate, &each.Konten, &each.Image, &each.Id, &each.Maindps, &each.Subdps, &each.Shielder, &each.Healer, &each.Durasi)
+		if err != nil {
+			println(err.Error())
+			return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
+		}
+
+		each.FormattedStart = each.StartDate.Format("2 January 2006")
+		each.FormattedEnd = each.EndDate.Format("2 January 2006")
+
+		result = append(result, each)
+	}
+
 	var tmpl, err = template.ParseFiles("views/index.html")
 
 	if err != nil { // null
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 	projects := map[string]interface{}{
-		"Blogs": dataBlog,
+		"Blogs": result,
 	}
 
 	return tmpl.Execute(c.Response(), projects)
@@ -216,16 +244,16 @@ func addNewBlog(c echo.Context) error {
 	// 	konten: konten,
 	// 	maindps: maindps,
 	dataNewBlog := Project{
-		Judul:     judul,
-		Image:     "/public/image/" + image,
-		StartDate: startDate,
-		EndDate:   endDate,
-		Durasi:    durasi,
-		Konten:    konten,
-		Maindps:   (maindps == "maindps"),
-		Subdps:    (subdps == "subdps"),
-		Shielder:  (shielder == "subdps"),
-		Healer:    (healer == "healer"),
+		Judul:          judul,
+		Image:          "/public/image/" + image,
+		FormattedStart: startDate,
+		FormattedEnd:   endDate,
+		Durasi:         durasi,
+		Konten:         konten,
+		Maindps:        (maindps == "maindps"),
+		Subdps:         (subdps == "subdps"),
+		Shielder:       (shielder == "subdps"),
+		Healer:         (healer == "healer"),
 	}
 	println(image)
 	dataBlog = append(dataBlog, dataNewBlog)
@@ -267,15 +295,15 @@ func updateBlog(c echo.Context) error {
 	println("Role : " + healer)
 
 	dataUpdateBlog := Project{
-		Judul:     judul,
-		StartDate: startDate,
-		EndDate:   endDate,
-		Durasi:    durasi,
-		Konten:    konten,
-		Maindps:   (maindps == "maindps"),
-		Subdps:    (subdps == "subdps"),
-		Shielder:  (shielder == "subdps"),
-		Healer:    (healer == "healer"),
+		Judul:          judul,
+		FormattedStart: startDate,
+		FormattedEnd:   endDate,
+		Durasi:         durasi,
+		Konten:         konten,
+		Maindps:        (maindps == "maindps"),
+		Subdps:         (subdps == "subdps"),
+		Shielder:       (shielder == "subdps"),
+		Healer:         (healer == "healer"),
 	}
 	dataBlog[id] = dataUpdateBlog
 	return c.Redirect(http.StatusMovedPermanently, "/")
