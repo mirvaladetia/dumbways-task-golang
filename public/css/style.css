@@ -152,7 +152,7 @@ section .left h2 {
   color: #001a33;
 }
 .container-button .edit{
-  width: 50% !important;
+  width: 100%;
   height: 30px;
   margin: 15pxs;
   background-color: #001a33;
@@ -163,7 +163,7 @@ section .left h2 {
 }
 
 .container-button button:hover {
-  background-color: #111727;
+  background-color: #111727 !important;
   color: white;
 }
 #barsmenu {

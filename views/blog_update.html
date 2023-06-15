@@ -45,6 +45,7 @@
               >Home</a
             >
           </li>
+          {{if DataSession.IsLogin}}
           <li class="nav-item">
             <a
               class="nav-link text-black active"
@@ -53,6 +54,7 @@
               >Add Project</a
             >
           </li>
+          {{end}}
           <li class="nav-item">
             <a
               class="nav-link text-black"
@@ -61,6 +63,35 @@
               >Testimonials</a
             >
           </li>
+          {{if .DataSession.IsLogin}}
+					<a
+						href="#"
+						class="me-5"
+						style="text-decoration: none; color: #001a33; font-size: 18px;"
+						>Hello, {{.DataSession.Name}}</a
+					>
+					<form id="myform" action="/logout" method="POST"></form>
+					<button
+						onclick="document.getElementById('myform').submit()"
+						class="me-5"
+            style="font-size: 18px; border: none; border-radius: 8px;"
+					>
+						Logout
+					</button>
+					{{else}}
+					<a
+						href="/form-register"
+						class="me-5 text-decoration-none"
+            style="font-size: 18px; border: none; border-radius: 8px; color: #001a33;"
+						>Register</a
+					>
+					<a
+						href="/form-login"
+						class="me-5 text-decoration-none"
+            style="font-size: 18px; border: none; border-radius: 8px; color: #001a33;"
+						>Login</a
+					>
+					{{end}}
         </ul>
         <a href="contact" class="btn bg-black text-white px-3 me-4"
           >Contact Me</a

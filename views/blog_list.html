@@ -61,6 +61,35 @@
               >Testimonials</a
             >
           </li>
+          {{if .DataSession.IsLogin}}
+					<a
+						href="#"
+						class="me-5"
+						style="text-decoration: none; color: #001a33; font-size: 18px;"
+						>Hello, {{.DataSession.Name}}</a
+					>
+					<form id="myform" action="/logout" method="POST"></form>
+					<button
+						onclick="document.getElementById('myform').submit()"
+						class="me-5"
+            style="font-size: 18px; border: none; border-radius: 8px;"
+					>
+						Logout
+					</button>
+					{{else}}
+					<a
+						href="/form-register"
+						class="me-5 text-decoration-none"
+            style="font-size: 18px; border: none; border-radius: 8px; color: #001a33;"
+						>Register</a
+					>
+					<a
+						href="/form-login"
+						class="me-5 text-decoration-none"
+            style="font-size: 18px; border: none; border-radius: 8px; color: #001a33;"
+						>Login</a
+					>
+					{{end}}
         </ul>
         <a href="contact" class="btn bg-black text-white px-3 me-4"
           >Contact Me</a
@@ -69,18 +98,22 @@
     </div>
   </nav>
   <div id="contents" class="blog-list">
+          {{if .DataSession.IsLogin}}
           <a class="button-upload" href="/blog">Add Post</a>
+          {{end}}
             <div class="blog-list-container">
                 <div class="blog-list-image">
                     <img src="{{.Image}}" alt="blog-gambar"/>
                 </div>
                 <div class="blog-content">
+                  {{if .DataSession.IsLogin}}
                     <div class="button-group">
                         <a class="button-unggah" href="/add-blog/{{.Id}}">Edit Post</a>
                         <form action="/delete-blog/{{.Id}}" method="POST">
                           <input class="button-hapus" type="submit" value="delete"/>
                         </form>
                     </div>
+                    {{end}}
                     <h1>
                       {{.Judul}}</h1>
                         <div class="icon-linked-app pt-3">

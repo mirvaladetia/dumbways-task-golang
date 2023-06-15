@@ -4,12 +4,16 @@ import (
 	"belajargolang/connection"
 	"context"
 	"html/template"
+	"log"
 	"net/http"
 	"strconv"
 
 	"time"
 
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Project struct {
@@ -27,53 +31,44 @@ type Project struct {
 	Shielder       bool
 	Healer         bool
 }
+type User struct {
+	ID       int
+	Name     string
+	Email    string
+	Password string
+}
 
-// var dataBlog = []Project{
-// 	{
-// 		Judul:          "Kamisato Ayaka",
-// 		Image:          "/public/image/ayaka.jpeg",
-// 		StartDate:      time.Date(2023, 05, 9, 0, 0, 0, 0, time.Local),
-// 		EndDate:        time.Date(2023, 06, 10, 0, 0, 0, 0, time.Local),
-// 		FormattedStart: "2023-05-09",
-// 		FormattedEnd:   "2023-06-10",
-// 		Durasi:         "1 Bulan",
-// 		Konten:         "Putri Es Inazuma",
-// 		Maindps:        true,
-// 		Subdps:         false,
-// 		Shielder:       false,
-// 		Healer:         false,
-// 	},
-// 	{
-// 		Judul:          "Keqing",
-// 		Image:          "/public/image/keqing.jpeg",
-// 		StartDate:      time.Date(2023, 05, 9, 0, 0, 0, 0, time.Local),
-// 		EndDate:        time.Date(2023, 06, 10, 0, 0, 0, 0, time.Local),
-// 		FormattedStart: "2023-05-09",
-// 		FormattedEnd:   "2023-06-10",
-// 		Durasi:         "1 Bulan",
-// 		Konten:         "Liyue Qixing",
-// 		Maindps:        true,
-// 		Subdps:         false,
-// 		Shielder:       false,
-// 		Healer:         false,
-// 	},
-// }
+type SessionData struct {
+	IsLogin bool
+	Name    string
+}
+
+var userData = SessionData{}
 
 func main() {
 	connection.DatabaseConnect()
 
 	e := echo.New()
-	// e.GET("/", func(c echo.Context) error {
-	// 	return c.String(http.StatusOK, "Hello World")
-	// })
+
 	e.Static("/public", "public")
+
+	e.Use(session.Middleware(sessions.NewCookieStore([]byte("session"))))
+
 	e.GET("/", home)
 	e.GET("/contact", contact)
 	e.GET("/blog", blog)
 	e.GET("/blog_list/:id", blogList) //membuka halaman detail blog dari klik judul blog di myproject
 	e.GET("/testimonial", testimonials)
 	e.GET("/add-blog/:id", addBlog) //membuka halaman blog form dari klik edit di my project
-
+	// Register
+	e.GET("/form-register", formRegister)
+	e.POST("/register", register)
+	// Login
+	e.GET("/form-login", formLogin)
+	e.POST("/login", login)
+	//Logout
+	e.POST("/logout", logout)
+	//CRUD
 	e.POST("/add-new-blog", addNewBlog)
 	e.POST("/delete-blog/:id", deleteBlog)
 	e.POST("/update-blog/:id", updateBlog)
@@ -100,16 +95,30 @@ func home(c echo.Context) error {
 
 		result = append(result, each)
 	}
+	sess, _ := session.Get("session", c)
 
+	if sess.Values["isLogin"] != true {
+		userData.IsLogin = false
+	} else {
+		userData.IsLogin = sess.Values["isLogin"].(bool)
+		userData.Name = sess.Values["name"].(string)
+	}
+
+	projects := map[string]interface{}{
+		"Blogs":        result,
+		"FlashStatus":  sess.Values["status"],
+		"FlashMessage": sess.Values["message"],
+		"DataSession":  userData,
+	}
+
+	delete(sess.Values, "message")
+	delete(sess.Values, "status")
+	sess.Save(c.Request(), c.Response())
 	var tmpl, err = template.ParseFiles("views/index.html")
 
 	if err != nil { // null
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
-	projects := map[string]interface{}{
-		"Blogs": result,
-	}
-
 	return tmpl.Execute(c.Response(), projects)
 }
 
@@ -136,15 +145,9 @@ func blog(c echo.Context) error {
 func blogList(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	// 	"Id":    id,
-	// 	"Title": "Putri Es Inazuma, Kamisato Ayaka",
-	// 	"Content": `Waifu cryo dari Inazuma ini merupakan salah satu karkater yang disukai oleh banyak player Genshin.
-	// 				Selain menjadi DPS yang kuat, dia juga memiliki kepribadian yang menarik.`,
-	// }
-
 	blogDetail := Project{}
 
-	err := connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_blogs WHERE id=$1", id).Scan(&blogDetail.Judul, &blogDetail.StartDate, &blogDetail.EndDate,
+	err := connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_blogs WHERE id=$1", id).Scan(&blogDetail.Id, &blogDetail.Judul, &blogDetail.StartDate, &blogDetail.EndDate,
 		&blogDetail.Konten, &blogDetail.Image, &blogDetail.Id, &blogDetail.Maindps, &blogDetail.Subdps,
 		&blogDetail.Shielder, &blogDetail.Healer, &blogDetail.Durasi)
 
@@ -154,34 +157,26 @@ func blogList(c echo.Context) error {
 
 	blogDetail.FormattedStart = blogDetail.StartDate.Format("2 January 2006")
 	blogDetail.FormattedEnd = blogDetail.EndDate.Format("2 January 2006")
-	// blogDetail = dataBlog[id]
-	// blogDetail.Id = id
-	// for i, data := range dataBlog {
-	// 	if id == i {
-	// 		blogDetail = Project{
-	// 			Judul:     data.Judul,
-	// 			Image:     data.Image,
-	// 			StartDate: data.StartDate,
-	// 			EndDate:   data.EndDate,
-	// 			Durasi:    data.Durasi,
-	// 			Konten:    data.Konten,
-	// 			Maindps:   data.Maindps,
-	// 			Subdps:    data.Subdps,
-	// 			Shielder:  data.Shielder,
-	// 			Healer:    data.Healer,
-	// 		}
-	// 	}
-	// }
-	// data := map[string]interface{}{
-	// 	"Blog": blogDetail,
-	// }
+
+	sess, _ := session.Get("session", c)
+
+	if sess.Values["isLogin"] != true {
+		userData.IsLogin = false
+	} else {
+		userData.IsLogin = sess.Values["isLogin"].(bool)
+		userData.Name = sess.Values["name"].(string)
+	}
+	dt := map[string]interface{}{
+		"Blogs":       blogDetail,
+		"DataSession": userData,
+	}
 	var tmpl, errTmpl = template.ParseFiles("views/blog_list.html")
 
 	if errTmpl != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 
-	return tmpl.Execute(c.Response(), blogDetail)
+	return tmpl.Execute(c.Response(), dt)
 }
 
 func testimonials(c echo.Context) error {
@@ -197,44 +192,6 @@ func testimonials(c echo.Context) error {
 func addBlog(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 
-	// data, _ := connection.Conn.Query(context.Background(), "SELECT * FROM tb_blogs")
-
-	// var result []Project
-	// for data.Next() {
-	// 	var each = Project{}
-
-	// 	err := data.Scan(&each.Judul, &each.StartDate, &each.EndDate, &each.Konten, &each.Image, &each.Id, &each.Maindps, &each.Subdps, &each.Shielder, &each.Healer, &each.Durasi)
-
-	// 	if err != nil {
-	// 		println(err.Error())
-	// 		return c.JSON(http.StatusInternalServerError, map[string]string{"Message": err.Error()})
-	// 	}
-
-	// 	each.FormattedStart = each.StartDate.Format("02 January 2006")
-	// 	each.FormattedEnd = each.EndDate.Format("02 January 2006")
-
-	// 	result = append(result, each)
-	// }
-
-	// blogDetail := Project{}
-
-	// for _, data := range result {
-	// 	if id == data.Id {
-	// 		blogDetail = Project{
-	// 			Id:        data.Id,
-	// 			Judul:     data.Judul,
-	// 			Image:     data.Image,
-	// 			StartDate: data.StartDate,
-	// 			EndDate:   data.EndDate,
-	// 			Durasi:    data.Durasi,
-	// 			Konten:    data.Konten,
-	// 			Maindps:   data.Maindps,
-	// 			Subdps:    data.Subdps,
-	// 			Shielder:  data.Shielder,
-	// 			Healer:    data.Healer,
-	// 		}
-	// 	}
-	// }
 	blogDetail := Project{}
 	err := connection.Conn.QueryRow(context.Background(), "SELECT judul, start_date, end_date, konten, image, id, main_dps, sub_dps, shielder, healer, durasi FROM tb_blogs WHERE id=$1", id).
 		Scan(&blogDetail.Judul, &blogDetail.StartDate, &blogDetail.EndDate,
@@ -248,24 +205,6 @@ func addBlog(c echo.Context) error {
 	blogDetail.FormattedStart = blogDetail.StartDate.Format("2 January 2006")
 	blogDetail.FormattedEnd = blogDetail.EndDate.Format("2 January 2006")
 
-	// blogDetail := Project{}
-	// for i, data := range dataBlog {
-	// 	if id == i {
-	// 		blogDetail = Project{
-	// 			Id:        id,
-	// Judul:     data.Judul,
-	// Image:     data.Image,
-	// StartDate: data.StartDate,
-	// EndDate:   data.EndDate,
-	// Durasi:    data.Durasi,
-	// Konten:    data.Konten,
-	// Maindps:   data.Maindps,
-	// Subdps:    data.Subdps,
-	// Shielder:  data.Shielder,
-	// Healer:    data.Healer,
-	// 		}
-	// 	}
-	// }
 	dt := map[string]interface{}{
 		"Blog": blogDetail,
 	}
@@ -310,27 +249,6 @@ func addNewBlog(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 
-	// newData := Project{
-	// 	judul: judul,
-	// 	StartDate: startDate,
-	// 	EndDate: endDate,
-	// 	konten: konten,
-	// 	maindps: maindps,
-	// dataNewBlog := Project{
-	// 	Judul:          judul,
-	// 	Image:          "/public/image/" + image,
-	// 	FormattedStart: startDate,
-	// 	FormattedEnd:   endDate,
-	// 	Durasi:         durasi,
-	// 	Konten:         konten,
-	// 	Maindps:        (maindps == "maindps"),
-	// 	Subdps:         (subdps == "subdps"),
-	// 	Shielder:       (shielder == "subdps"),
-	// 	Healer:         (healer == "healer"),
-	// }
-	// println(image)
-	// dataBlog = append(dataBlog, dataNewBlog)
-
 	return c.Redirect(http.StatusMovedPermanently, "/")
 }
 
@@ -365,36 +283,16 @@ func updateBlog(c echo.Context) error {
 	shielder := c.FormValue("shielder")
 	healer := c.FormValue("healer")
 
-	println("Judul : " + judul)
-	println("Start Date : " + startDate)
-	println("End Date : " + endDate)
-	println("Konten : " + konten)
-	println("Role : " + maindps)
-	println("Role : " + subdps)
-	println("Role : " + shielder)
-	println("Role : " + healer)
-
 	parsedStartDate, _ := time.Parse("2006-01-02", startDate)
 	parsedEndDate, _ := time.Parse("2006-01-02", endDate)
-	_, err := connection.Conn.Exec(context.Background(), "UPDATE tb_blogs SET judul=$1, start_date=$2, end_date=$3, durasi=$4, konten=$5, main_dps=$6, sub_dps=$7, shielder=$8, healer=$9, image=$10",
-		judul, parsedStartDate.Local(), parsedEndDate.Local(), konten, maindps != "", subdps != "", durasi, shielder != "", healer != "", "/public/image/"+image)
+
+	_, err := connection.Conn.Exec(context.Background(), "UPDATE tb_blogs SET judul=$1, start_date=$2, end_date=$3, durasi=$4, konten=$5, main_dps=$6, sub_dps=$7, shielder=$8, healer=$9, image=$10 WHERE id=$11",
+		judul, parsedStartDate.Local(), parsedEndDate.Local(), konten, maindps != "", subdps != "", durasi, shielder != "", healer != "", "/public/image/"+image, id)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 
-	// dataUpdateBlog := Project{
-	// 	Judul:          judul,
-	// 	FormattedStart: startDate,
-	// 	FormattedEnd:   endDate,
-	// 	Durasi:         durasi,
-	// 	Konten:         konten,
-	// 	Maindps:        (maindps == "maindps"),
-	// 	Subdps:         (subdps == "subdps"),
-	// 	Shielder:       (shielder == "subdps"),
-	// 	Healer:         (healer == "healer"),
-	// }
-	// dataBlog[id] = dataUpdateBlog
 	return c.Redirect(http.StatusMovedPermanently, "/")
 }
 
@@ -435,4 +333,98 @@ func sumDurasi(startDate, endDate string) string {
 	}
 
 	return durasi
+}
+
+func formLogin(c echo.Context) error {
+	sess, _ := session.Get("session", c)
+	flash := map[string]interface{}{
+		"FlashStatus":  sess.Values["status"],
+		"FlashMessage": sess.Values["message"],
+	}
+
+	delete(sess.Values, "message")
+	delete(sess.Values, "status")
+	sess.Save(c.Request(), c.Response())
+
+	var tmpl, err = template.ParseFiles("views/blog_login.html")
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return tmpl.Execute(c.Response(), flash)
+}
+
+func login(c echo.Context) error {
+	err := c.Request().ParseForm()
+	if err != nil {
+		log.Fatal(err)
+	}
+	email := c.FormValue("inputEmail")
+	password := c.FormValue("inputPassword")
+
+	user := User{}
+	err = connection.Conn.QueryRow(context.Background(), "SELECT * FROM tb_users WHERE email=$1", email).Scan(&user.ID, &user.Name, &user.Email, &user.Password)
+	if err != nil {
+		return redirectWithMessage(c, "Email Incorrect!", false, "/form-login")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		return redirectWithMessage(c, "Password Incorrect!", false, "/form-login")
+	}
+	sess, _ := session.Get("session", c)
+	sess.Options.MaxAge = 10800
+	sess.Values["message"] = "Login success!"
+	sess.Values["status"] = true
+	sess.Values["name"] = user.Name
+	sess.Values["email"] = user.Email
+	sess.Values["id"] = user.ID
+	sess.Values["isLogin"] = true
+	sess.Save(c.Request(), c.Response())
+
+	return c.Redirect(http.StatusMovedPermanently, "/")
+}
+func redirectWithMessage(c echo.Context, message string, status bool, path string) error {
+	sess, _ := session.Get("session", c)
+	sess.Values["message"] = message
+	sess.Values["status"] = status
+	sess.Save(c.Request(), c.Response())
+	return c.Redirect(http.StatusMovedPermanently, path)
+}
+func formRegister(c echo.Context) error {
+	var tmpl, err = template.ParseFiles("views/blog_register.html")
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return tmpl.Execute(c.Response(), nil)
+}
+func register(c echo.Context) error {
+	// to make sure request body is form data format, not JSON, XML, etc.
+	err := c.Request().ParseForm()
+	if err != nil {
+		log.Fatal(err)
+	}
+	name := c.FormValue("inputName")
+	email := c.FormValue("inputEmail")
+	password := c.FormValue("inputPassword")
+
+	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(password), 10)
+
+	_, err = connection.Conn.Exec(context.Background(), "INSERT INTO tb_users(name, email, password) VALUES ($1, $2, $3)", name, email, passwordHash)
+
+	if err != nil {
+		redirectWithMessage(c, "Register failed, please try again.", false, "/form-register")
+	}
+
+	return redirectWithMessage(c, "Register success!", true, "/form-login")
+}
+func logout(c echo.Context) error {
+	sess, _ := session.Get("session", c)
+	sess.Options.MaxAge = -1
+	sess.Save(c.Request(), c.Response())
+
+	return c.Redirect(http.StatusMovedPermanently, "/")
 }

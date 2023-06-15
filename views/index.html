@@ -44,6 +44,7 @@
 								>Home</a
 							>
 						</li>
+            {{if .Datasession.IsLogin}}
 						<li class="nav-item">
 							<a
 								class="nav-link text-black"
@@ -52,6 +53,7 @@
 								>Add Project</a
 							>
 						</li>
+            {{end}}
 						<li class="nav-item">
 							<a
 								class="nav-link text-black"
@@ -61,13 +63,62 @@
 							>
 						</li>
 					</ul>
+          {{if .DataSession.IsLogin}}
+					<a
+						href="#"
+						class="me-5"
+						style="text-decoration: none; color: #001a33; font-size: 18px;"
+						>Hello, {{.DataSession.Name}}</a
+					>
+					<form id="myform" action="/logout" method="POST"></form>
+					<button
+						onclick="document.getElementById('myform').submit()"
+						class="me-5"
+            style="font-size: 18px; border: none; border-radius: 8px;"
+					>
+						Logout
+					</button>
+					{{else}}
+					<a
+						href="/form-register"
+						class="me-5 text-decoration-none"
+            style="font-size: 18px; border: none; border-radius: 8px; color: #001a33;"
+						>Register</a
+					>
+					<a
+						href="/form-login"
+						class="me-5 text-decoration-none"
+            style="font-size: 18px; border: none; border-radius: 8px; color: #001a33;"
+						>Login</a
+					>
+					{{end}}
 					<a href="contact" class="btn bg-black text-white px-3 me-4"
 						>Contact Me</a
 					>
 				</div>
 			</div>
 		</nav>
-
+    {{if .FlashMessage}} {{if .FlashStatus}}
+		<div class="alert alert-success alert-dismissable fade show" role="alert">
+			<strong>{{.FlashMessage}}</strong>
+			<button
+				type="button"
+				class="btn-close"
+				data-bs-dismiss="alert"
+				aria-label="Close"
+			></button>
+		</div>
+		{{else}}
+		<div class="alert alert-danger alert-dismissable fade show" role="alert">
+			<strong>{{.FlashMessage}}</strong>
+			<button
+				type="button"
+				class="btn-close"
+				data-bs-dismiss="alert"
+				aria-label="Close"
+			></button>
+		</div>
+		{{end}} {{end}}
     <div class="card-container">
       <section>
         <div class="left">
@@ -141,51 +192,21 @@
             <img src="/public/image/healing.png" style="width: 20px; display: flex;">
             {{end}}
           </div>
-          
           <p class="card-text">{{$data.FormattedStart}} / {{$data.FormattedEnd}}</p>
           <p class="card-text">Durasi : {{$data.Durasi}} | Mirval Adetia</p>
           <p class="card-text">{{$data.Konten}}</p>
-
-            <div class="container-button d-flex flex-row mt-5">
-                <a class="btn me-2 edit" href="add-blog/{{$data.Id}}">edit</a>
+          {{if .DataSession.IsLogin}}
+            <div class="container-button mt-5">
+                <a class="btn btn-primary mb-2 edit" href="add-blog/{{$data.Id}}">edit</a>
                 <form action="/delete-blog/{{$data.Id}}" method="POST">
-                  <input class="btn md-2 edit" type="submit" value="delete"/>
+                  <input class="btn btn-primary edit" type="submit" value="delete"/>
                 </form>
             </div>
+          {{end}}
           </div>
         </div>
       </div>
       {{end}}
-      <!-- <div class="col">
-        <div class="card card-project shadow rounded-2">
-          <img
-            src="/public/image/keqing.jpeg"
-            class="card-img-top p-2 rounded-4" style="object-fit: cover; height: 500px;"
-            alt="..."
-          />
-          <div class="card-body">
-            <h5 class="card-title fw-bold">
-              <a
-                href="blog_list.html"
-                class="text-black text-decoration-none"
-                >Pejabat Tsundere Liyue, Keqing</a
-              >
-            </h5>
-            <p class="card-text">20 Mei 2023 01.00 WIB | Mirval Adetia</p>
-            <p class="card-text">
-              Waifu electro dari Liyue ini merupakan salah satu karkater yang disukai oleh banyak player Genshin. Memiliki kepribadian yang menarik.
-              Cerdas dan punya pendirian yang teguh dan tangguh.
-            </p>
-            <div class="icon-linked-app pt-3">
-                <img src="/public/image/sword_1.png" style="width: 20px; display: flex;">
-            </div>
-            <div class="container-button d-flex flex-row mt-5">
-              <button class="btn me-2" type="button">edit</button>
-              <button class="btn md-2" type="button">delete</button>
-            </div>
-          </div>
-        </div>
-      </div> -->
       </div>
     </div>
     <script
